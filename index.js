@@ -2,6 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser');
 const cors = require('cors')
 const MongoClient = require('mongodb').MongoClient;
+const ObjectId = require('mongodb').ObjectId;
 require('dotenv').config()
 
 const app = express()
@@ -29,7 +30,7 @@ client.connect(err => {
   app.post('/addTasks', (req, res) => {
     const task = req.body;
     console.log(task);
-    collection.insertMany(task)
+    collection.insertOne(task)
       .then(result => {
         res.send(result);
         console.log(result);
@@ -45,21 +46,26 @@ client.connect(err => {
 
   app.post('/addVolunteerDetail', (req, res) => {
     const volunteerInfo = req.body;
-    console.log();
     volunteerDetail.insertOne(volunteerInfo)
       .then(result => {
-        res.send(result.insertedCount > 0);
+        res.send(result);
          console.log(result);
       })
   })
 
-  // app.get('/allVolunteerDetail', (req, res) => {
-  //   volunteerDetail.find({ email: req.query.email })
-  //     .toArray((err, document) => {
-  //       res.send(document)
-  //     })
-  // })
+  app.get('/allVolunteerDetail', (req, res) => {
+    volunteerDetail.find()
+      .toArray((err, documents) => {
+        res.send(documents)
+      })
+  })
 
+  app.delete('/allVolunteerDelete/:id', (req, res) => {
+    volunteerDetail.deleteOne({ _id: ObjectId(req.params.id)})
+      .then(result => {
+        res.send(result);
+      })
+  })
 
 });
 
